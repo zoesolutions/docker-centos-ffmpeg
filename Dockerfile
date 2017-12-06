@@ -113,5 +113,8 @@ RUN cd /tmp/ffmpeg_sources && \
     hash -r
 
 # cleanup
+RUN yum remove -y autoconf automake bzip2 cmake freetype-devel gcc gcc-c++ git libtool make mercurial zlib-devel
+RUN yum clean all
+RUN rm -rf /var/cache/yum
 RUN rm -r /tmp/ffmpeg_sources && \
     rm -r /tmp/bin
