@@ -4,4 +4,4 @@
 CentOS 7 image with FFmpeg installed from [source code](https://trac.ffmpeg.org/wiki/CompilationGuide/Centos).
 
 * Base image: [official/centos:7](https://github.com/CentOS/sig-cloud-instance-images/blob/37e0a7f3d98ae87)
-* FFmpeg version: 3.4
+* FFmpeg version: 4.1.1
