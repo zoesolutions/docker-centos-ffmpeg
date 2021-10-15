@@ -1,3 +1,4 @@
+# stage 1
 FROM centos:7 AS stage1
 
 # install FFmpeg according to the official documentation on how to install
@@ -101,7 +102,7 @@ RUN cd /tmp/ffmpeg_sources && \
     make install && \
     hash -r
 
-
+# stage 2
 FROM centos:7 AS stage2
 
 # do update
@@ -112,3 +113,6 @@ RUN yum install -y freetype
 
 # copy FFMpeg from stage1 to stage2
 COPY --from=stage1 /usr/local /usr/local
+
+# cleanup
+RUN yum clean all
