@@ -10,9 +10,9 @@ RUN mkdir /tmp/ffmpeg_sources
 
 # NASM
 RUN cd /tmp/ffmpeg_sources && \
-    curl -O -L http://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.bz2 && \
-    tar xjvf nasm-2.14.02.tar.bz2 && \
-    cd nasm-2.14.02 && \
+    curl -O -L https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.bz2  && \
+    tar xjvf nasm-2.15.05.tar.bz2 && \
+    cd nasm-2.15.05 && \
     ./autogen.sh && \
     ./configure --prefix="/tmp/ffmpeg_build" --bindir="/tmp/bin" && \
     make && \
@@ -20,7 +20,7 @@ RUN cd /tmp/ffmpeg_sources && \
 
 # Yasm
 RUN cd /tmp/ffmpeg_sources && \
-    curl -O -L http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz && \
+    curl -O -L https://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz && \
     tar xzvf yasm-1.3.0.tar.gz && \
     cd yasm-1.3.0 && \
     ./configure --prefix="/tmp/ffmpeg_build" --bindir="/tmp/bin" && \
@@ -29,7 +29,7 @@ RUN cd /tmp/ffmpeg_sources && \
 
 # libx264
 RUN cd /tmp/ffmpeg_sources && \
-    git clone --depth 1 http://git.videolan.org/git/x264 && \
+    git clone --branch stable --depth 1 https://code.videolan.org/videolan/x264.git && \
     cd x264 && \
     PATH="$PATH:/tmp/bin" PKG_CONFIG_PATH="/tmp/ffmpeg_build/lib/pkgconfig" ./configure --prefix="/tmp/ffmpeg_build" --bindir="/tmp/bin" --enable-static && \
     PATH="$PATH:/tmp/bin" make && \
@@ -37,8 +37,8 @@ RUN cd /tmp/ffmpeg_sources && \
 
 # libx265
 RUN cd /tmp/ffmpeg_sources && \
-    hg clone https://bitbucket.org/multicoreware/x265 && \
-    cd /tmp/ffmpeg_sources/x265/build/linux && \
+    git clone --branch stable --depth 2 https://bitbucket.org/multicoreware/x265_git && \
+    cd /tmp/ffmpeg_sources/x265_git/build/linux && \
     cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="/tmp/ffmpeg_build" -DENABLE_SHARED:bool=off ../../source && \
     make && \
     make install
@@ -54,7 +54,7 @@ RUN cd /tmp/ffmpeg_sources && \
 
 # libmp3lame
 RUN cd /tmp/ffmpeg_sources && \
-    curl -O -L http://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz && \
+    curl -O -L https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz && \
     tar xzvf lame-3.100.tar.gz && \
     cd lame-3.100 && \
     ./configure --prefix="/tmp/ffmpeg_build" --bindir="/tmp/bin" --disable-shared --enable-nasm && \
@@ -63,9 +63,9 @@ RUN cd /tmp/ffmpeg_sources && \
 
 # libopus
 RUN cd /tmp/ffmpeg_sources && \
-    curl -O -L https://archive.mozilla.org/pub/opus/opus-1.3.tar.gz && \
-    tar xzvf opus-1.3.tar.gz && \
-    cd opus-1.3 && \
+    curl -O -L https://archive.mozilla.org/pub/opus/opus-1.3.1.tar.gz && \
+    tar xzvf opus-1.3.1.tar.gz && \
+    cd opus-1.3.1 && \
     PKG_CONFIG_PATH="/tmp/ffmpeg_build/lib/pkgconfig" ./configure --prefix="/tmp/ffmpeg_build" --disable-shared && \
     make && \
     make install
@@ -80,9 +80,9 @@ RUN cd /tmp/ffmpeg_sources && \
 
 # FFmpeg
 RUN cd /tmp/ffmpeg_sources && \
-    curl -O http://ffmpeg.org/releases/ffmpeg-4.1.1.tar.bz2 && \
-    tar xjvf ffmpeg-4.1.1.tar.bz2 && \
-    cd ffmpeg-4.1.1 && \
+    curl -O -L https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2 && \
+    tar xjvf ffmpeg-snapshot.tar.bz2 && \
+    cd ffmpeg && \
     PATH="$PATH:/tmp/bin" PKG_CONFIG_PATH="/tmp/ffmpeg_build/lib/pkgconfig" ./configure \
         --pkg-config-flags="--static" \
         --extra-cflags="-I/tmp/ffmpeg_build/include" \
@@ -101,7 +101,14 @@ RUN cd /tmp/ffmpeg_sources && \
     make install && \
     hash -r
 
+
 FROM centos:7 AS stage2
+
+# do update
+RUN yum update -y
+
+# install FreeType
+RUN yum install -y freetype
 
 # copy FFMpeg from stage1 to stage2
 COPY --from=stage1 /usr/local /usr/local
